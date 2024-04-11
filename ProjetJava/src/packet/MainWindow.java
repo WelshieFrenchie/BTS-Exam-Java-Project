@@ -67,5 +67,14 @@ public class MainWindow extends JFrame implements ActionListener{
 			LoginWindow lw = new LoginWindow();
 			lw.setVisible(true);
 		}
+		if (e.getSource() == signupButton) {
+			RegisterWindow lw = new RegisterWindow();
+			lw.setVisible(true);
+}
+	
+		
+		
+
+				
 	}
 }
