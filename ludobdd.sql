@@ -35,12 +35,16 @@ DELETE FROM `admin`;
 -- Listage de la structure de table ludojava. autorisations
 CREATE TABLE IF NOT EXISTS `autorisations` (
   `idAuto` int NOT NULL AUTO_INCREMENT,
-  `nomAuto` int DEFAULT NULL,
+  `nomAuto` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`idAuto`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table ludojava.autorisations : ~0 rows (environ)
 DELETE FROM `autorisations`;
+INSERT INTO `autorisations` (`idAuto`, `nomAuto`) VALUES
+	(1, 'Ajout'),
+	(2, 'Modification'),
+	(3, 'Suppression');
 
 -- Listage de la structure de table ludojava. commentaires
 CREATE TABLE IF NOT EXISTS `commentaires` (
@@ -58,32 +62,86 @@ CREATE TABLE IF NOT EXISTS `commentaires` (
 -- Listage des données de la table ludojava.commentaires : ~0 rows (environ)
 DELETE FROM `commentaires`;
 
+-- Listage de la structure de table ludojava. estemprunte
+CREATE TABLE IF NOT EXISTS `estemprunte` (
+  `User` int NOT NULL,
+  `Jeu` int NOT NULL,
+  PRIMARY KEY (`Jeu`,`User`),
+  KEY `FK__personne` (`User`),
+  CONSTRAINT `FK__jeu` FOREIGN KEY (`Jeu`) REFERENCES `jeu` (`idJeu`),
+  CONSTRAINT `FK__personne` FOREIGN KEY (`User`) REFERENCES `personne` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Listage des données de la table ludojava.estemprunte : ~0 rows (environ)
+DELETE FROM `estemprunte`;
+
 -- Listage de la structure de table ludojava. esttypo
 CREATE TABLE IF NOT EXISTS `esttypo` (
   `jeu` int NOT NULL,
   `genre` int NOT NULL,
   PRIMARY KEY (`jeu`,`genre`),
-  KEY `FK__typologie` (`genre`)
+  KEY `FK_esttypo_typologie` (`genre`),
+  CONSTRAINT `FK_esttypo_jeu` FOREIGN KEY (`jeu`) REFERENCES `jeu` (`idJeu`),
+  CONSTRAINT `FK_esttypo_typologie` FOREIGN KEY (`genre`) REFERENCES `typologie` (`idGenre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table ludojava.esttypo : ~0 rows (environ)
 DELETE FROM `esttypo`;
+INSERT INTO `esttypo` (`jeu`, `genre`) VALUES
+	(2, 1),
+	(3, 1),
+	(5, 1),
+	(1, 2),
+	(4, 2),
+	(5, 2),
+	(6, 2),
+	(7, 2);
+
+-- Listage de la structure de table ludojava. etatjeu
+CREATE TABLE IF NOT EXISTS `etatjeu` (
+  `idEtat` int NOT NULL AUTO_INCREMENT,
+  `Etat` varchar(15) DEFAULT NULL,
+  PRIMARY KEY (`idEtat`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Listage des données de la table ludojava.etatjeu : ~0 rows (environ)
+DELETE FROM `etatjeu`;
+INSERT INTO `etatjeu` (`idEtat`, `Etat`) VALUES
+	(1, 'Neuf'),
+	(2, 'Comme neuf'),
+	(3, 'Excellent'),
+	(4, 'Très bien'),
+	(5, 'Bien'),
+	(6, 'Moyen'),
+	(7, 'Peu bien'),
+	(8, 'Mauvais'),
+	(9, 'Très mauvais');
 
 -- Listage de la structure de table ludojava. jeu
 CREATE TABLE IF NOT EXISTS `jeu` (
   `idJeu` int NOT NULL AUTO_INCREMENT,
   `nomJeu` varchar(50) NOT NULL DEFAULT '',
-  `descJeu` varchar(50) NOT NULL DEFAULT '',
+  `descJeu` varchar(700) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
   `dispojeu` int NOT NULL DEFAULT '0',
   `conditionJeu` int NOT NULL,
-  `nbJoueurs` int DEFAULT NULL,
+  `nbJoueurs` varchar(8) DEFAULT NULL,
   `ageMin` int DEFAULT NULL,
-  `duréeJeu` time DEFAULT NULL,
-  PRIMARY KEY (`idJeu`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `duréeJeu` varchar(48) DEFAULT NULL,
+  PRIMARY KEY (`idJeu`),
+  KEY `FK_jeu_etatjeu` (`conditionJeu`),
+  CONSTRAINT `FK_jeu_etatjeu` FOREIGN KEY (`conditionJeu`) REFERENCES `etatjeu` (`idEtat`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table ludojava.jeu : ~0 rows (environ)
 DELETE FROM `jeu`;
+INSERT INTO `jeu` (`idJeu`, `nomJeu`, `descJeu`, `dispojeu`, `conditionJeu`, `nbJoueurs`, `ageMin`, `duréeJeu`) VALUES
+	(1, 'Monopoly', 'Achetez, vendez et négociez pour gagner la partie. Attention à la faillite, à vous de bien choisir les rues pour ruiner vos adversaires et être le dernier sur le plateau de jeu ! Monopoly, le plus célèbre des jeux de société!', 0, 1, '2-8', 8, '1h'),
+	(2, 'Uno', 'Le célèbre jeu de défausse pour jouer en famille. Chaque joueur reçoit 7 cartes et on en place une face visible au centre de la table. Chaque joueur à son tour se défausse d\'une carte de sa main qui a la même valeur, la même couleur ou le même symbole que la carte visible sur la table. S\'il ne peut pas joueur il pioche. Quand un joueur n\'a plus de cartes la partie s\'arrête. Les cartes encore en main font marquer des points négatifs. Les cartes spéciales viennent pimenter le jeu.', 0, 2, '2-10', 7, '30m'),
+	(3, 'Dobble', 'Dobble est un jeu d’observation et de rapidité pour toute la famille. Le but ? Il existe un seul et unique symbole commun entre chacune des cartes. Sois le premier à le répérer et à le nommer pour remporter la carte.', 0, 3, '2-8', 6, '5 à 15m'),
+	(4, 'Trivial Pursuit', 'Jeu très connu depuis plusieurs générations, le Trivial Pursuit se hisse au rang des jeux de société les plus populaires ! Le principe de ce jeu de plateau est simple : il suffit de répondre correctement à 12 questions de culture générale pour remporter la partie. Les questions répondent à plusieurs thèmes (célébrité, divertissement, culture, géographie, histoire, cinéma) chacun modélisé par une couleur. Chaque joueur doit remplir son camembert au fur et à mesure qu’il répond aux bonnes questions, et doit avoir à la fin 1 triangle de chaque couleur dans son camembert.', 0, 8, '2-6', 8, '1h'),
+	(5, 'Mille Bornes', 'L’indémodable Mille Bornes, la version phare de la gamme, qui se joue de génération en génération avec la même passion.', 0, 3, '2-8', 6, '30m'),
+	(6, 'Risk', 'Menez vos régiments à la victoire. Prenez des décisions pour conquérir le monde. Le monde appartient aux audacieux mais l\'êtes-vous assez pour gagner ? ', 0, 2, '2-5', 10, '1h'),
+	(7, 'Cluedo', 'Samuel Lenoir, milliardaire très puissant, est assassiné ! Seuls les 6 invités se trouvaient dans la maison au moment du drame… C’est maintenant à vous de résoudre l’énigme ! Elaborez vos hypothèses en posant des questions à vos adversaires. Qui l’a tué ? Dans quelle pièce ? Et avec quelle arme ? Vous avez trouvez ?', 0, 3, '2-6', 8, '45m');
 
 -- Listage de la structure de table ludojava. personne
 CREATE TABLE IF NOT EXISTS `personne` (
@@ -103,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `typologie` (
   `idGenre` int NOT NULL AUTO_INCREMENT,
   `nomGenre` varchar(30) NOT NULL,
   PRIMARY KEY (`idGenre`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table ludojava.typologie : ~0 rows (environ)
 DELETE FROM `typologie`;
