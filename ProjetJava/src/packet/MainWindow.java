@@ -16,6 +16,7 @@ public class MainWindow extends JFrame implements ActionListener{
 	private JButton loginButton = new JButton("Connexion");
 	private JButton signupButton = new JButton("Inscription");
 	private Container contenu;
+	   private boolean utilisateurConnecte = false;
 	
 	public MainWindow() {
 		super();
@@ -61,20 +62,22 @@ public class MainWindow extends JFrame implements ActionListener{
 		this.signupButton.addActionListener(this);
 		this.connectionBox.add(signupButton);
 	}
-
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == loginButton) {
-			LoginWindow lw = new LoginWindow();
-			lw.setVisible(true);
-		}
-		if (e.getSource() == signupButton) {
-			RegisterWindow lw = new RegisterWindow();
-			lw.setVisible(true);
+	 public void actionPerformed(ActionEvent e) {
+	        if (e.getSource() == loginButton) {
+	            // Gérer la connexion de l'utilisateur ici...
+	            utilisateurConnecte = true; // Mettre à jour l'état de connexion
+	            signupButton.setVisible(false); // Cacher le bouton d'inscription
+	            LoginWindow lw = new LoginWindow();
+	            lw.setVisible(true);
+	        }
+	        if (e.getSource() == signupButton) {
+	            RegisterWindow lw = new RegisterWindow();
+	            lw.setVisible(true);
 }
-	
-		
-		
-
 				
+	}
+	
+	public void hideSignupButton() {
+	    signupButton.setVisible(false);
 	}
 }
