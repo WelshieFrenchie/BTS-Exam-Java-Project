@@ -2,11 +2,20 @@ package packet;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.swing.*;
 
 public class MainWindow extends JFrame implements ActionListener {
 
-    private JScrollPane boxLeft = new JScrollPane();
+    private static final String LOGIN = null;
+	private static final String URL = null;
+	private static final String PASSWORD = null;
+	private JScrollPane boxLeft = new JScrollPane();
     private JLabel boxLeftLabel = new JLabel("Liste de jeux");
     private JPanel boxLeftName = new JPanel();
     private JScrollPane boxMiddle = new JScrollPane();
@@ -16,8 +25,13 @@ public class MainWindow extends JFrame implements ActionListener {
     private JButton signupButton = new JButton("Inscription");
     private JButton logoutButton = new JButton("Déconnexion"); // Ajout du bouton de déconnexion
     private Container contenu;
-    private boolean utilisateurConnecte = false;
-
+    public static boolean utilisateurConnecte;
+    public static boolean estAdmin; 
+	private JLabel nomField;
+	private JLabel prenomField;
+	private JLabel passwordField;
+	private JLabel emailField;
+	private JButton boutonAdmin = new JButton("Admin"); // Ajout du boutton admin
     public MainWindow() {
         super();
 
@@ -58,41 +72,69 @@ public class MainWindow extends JFrame implements ActionListener {
         rightBoxGrid.setConstraints(signupButton, rightBoxConst);
         rightBoxConst.gridy = 2;
         rightBoxGrid.setConstraints(logoutButton, rightBoxConst);
-
         this.loginButton.addActionListener(this);
         this.connectionBox.add(loginButton);
         this.signupButton.addActionListener(this);
         this.connectionBox.add(signupButton);
         this.logoutButton.addActionListener(this); 
-        this.connectionBox.add(logoutButton); 
+        this.connectionBox.add(logoutButton);
+        this.boutonAdmin.addActionListener(this); 
+        this.connectionBox.add(boutonAdmin);
+        
+        if (utilisateurConnecte == true) {
+        	this.loginButton.setVisible(false);
+        	this.signupButton.setVisible(false);
+        	this.logoutButton.setVisible(true);
+        }
+        else {
+        	this.loginButton.setVisible(true);
+        	this.signupButton.setVisible(true);
+        	this.logoutButton.setVisible(false);
+        }
+        if (estAdmin == true) {
+        	this.boutonAdmin.setVisible(true);
+
+        }
+        else {
+        	this.boutonAdmin.setVisible(false);
+        }
     }
+    
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == loginButton) {
-            utilisateurConnecte = true; 
+        if (e.getSource() == loginButton) { 
             LoginWindow lw = new LoginWindow();
             lw.setVisible(true);
+            this.setVisible(false);
+            this.dispose();
 
-            signupButton.setVisible(false);
         }
         if (e.getSource() == signupButton) {
             RegisterWindow lw = new RegisterWindow();
             lw.setVisible(true);
+            this.setVisible(false);
+            this.dispose();
         }
         if (e.getSource() == logoutButton) { 
-
             utilisateurConnecte = false;
-            signupButton.setVisible(true);
+            this.setVisible(false);
+            this.dispose();
+            MainWindow mw = new MainWindow();
+            mw.setVisible(true);
         }
     }
 
-    public void hideSignupButton() {
-        signupButton.setVisible(!utilisateurConnecte); // Masquer le bouton d'inscription si l'utilisateur est connecté
-        logoutButton.setVisible(utilisateurConnecte); // Afficher le bouton de déconnexion si l'utilisateur est connecté
-        
-        if (!utilisateurConnecte) {
+
+    private void hideSignupButton() {
+        signupButton.setVisible(!utilisateurConnecte);
+        logoutButton.setVisible(utilisateurConnecte); // Rendre visible le bouton de déconnexion lorsque l'utilisateur est connecté
+    }
+
+		{
             logoutButton.setVisible(false);
         }
-    }
 }
+		 
+    
+
 

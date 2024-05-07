@@ -37,7 +37,7 @@ public class RegisterWindow extends JDialog implements ActionListener {
 
     public RegisterWindow() {
         this.setTitle("Register");
-        this.setBounds(800, 250, 300, 300);
+        this.setBounds(800, 250, 300, 350);
         this.setResizable(false);
         
         contenu = getContentPane();
@@ -86,37 +86,49 @@ public class RegisterWindow extends JDialog implements ActionListener {
         if (e.getSource() == backButton) {
             this.setVisible(false);
         } else if (e.getSource() == signupButton) {
-            attemptRegister();
-        }
-    }
-
-    private void attemptRegister() {
-        String mail = emailField.getText();
-        String pwd = new String(passwordField.getPassword());
-        String nom = nomField.getText();
-        String prenom = prenomField.getText();
-        
-        try {
-            Connection connection = DriverManager.getConnection(URL, LOGIN, PASSWORD);
+        	String mail = emailField.getText();
+            String pwd = new String(passwordField.getPassword());
+            String nom = nomField.getText();
+            String prenom = prenomField.getText();
             
-            String query = "INSERT INTO personne (nom, prenom, mail, pwd) VALUES (?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, nom);
-            statement.setString(2, prenom);
-            statement.setString(3, mail);
-            statement.setString(4, pwd);
-            
-            int rowsInserted = statement.executeUpdate();
-            if (rowsInserted > 0) {
-                System.out.println("Enregistrement réussi pour l'utilisateur avec l'email : " + mail);
-                this.setVisible(false); 
-            } else {
-                System.out.println("Échec de l'enregistrement pour l'utilisateur avec l'email : " + mail);
+            try {
+                Connection connection = DriverManager.getConnection(URL, LOGIN, PASSWORD);
+                
+                String query = "INSERT INTO personne (nom, prenom, mail, pwd) VALUES (?, ?, ?, ?)";
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setString(1, nom);
+                statement.setString(2, prenom);
+                statement.setString(3, mail);
+                statement.setString(4, pwd);
+                
+                int rowsSelected = statement.executeUpdate();
+                if (rowsSelected > 0) {
+                    System.out.println("Enregistrement réussi pour l'utilisateur avec l'email : " + mail);
+                    this.setVisible(false); 
+                    
+                    String query2 = "SELECT * From admin join personne on admin.idpers = personne.id where personne.mail = ?";
+                    PreparedStatement statement2 = connection.prepareStatement(query2);
+                    statement.setString(1, mail);
+                    
+                    int rowsSelected1 = statement.executeUpdate();
+                    if (rowsSelected1 > 0) {
+                    	MainWindow.estAdmin=true; 
+                    }
+                    else { 
+                    	MainWindow.estAdmin=false; 
+                    }
+                    
+                } else {
+                    System.out.println("Échec de l'enregistrement pour l'utilisateur avec l'email : " + mail);
+                }
+                
+                connection.close();
+            } catch (SQLException ex) {
+                System.out.println("ERREUR lors de l'enregistrement dans la base de données : " + ex.getMessage());
             }
-            
-            connection.close();
-        } catch (SQLException ex) {
-            System.out.println("ERREUR lors de l'enregistrement dans la base de données : " + ex.getMessage());
+            MainWindow.utilisateurConnecte = true;
+            MainWindow mw = new MainWindow();
+            mw.setVisible(true);
         }
     }
 }
