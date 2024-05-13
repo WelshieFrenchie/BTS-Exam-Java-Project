@@ -16,6 +16,7 @@ public class MainWindow extends JFrame implements ActionListener {
 	private static final String URL = null;
 	private static final String PASSWORD = null;
 	private JScrollPane boxLeft = new JScrollPane();
+	private JPanel boxLeftJeu = new JPanel();
     private JLabel boxLeftLabel = new JLabel("Liste de jeux");
     private JPanel boxLeftName = new JPanel();
     private JScrollPane boxMiddle = new JScrollPane();
@@ -23,15 +24,17 @@ public class MainWindow extends JFrame implements ActionListener {
     private JPanel connectionBox = new JPanel();
     private JButton loginButton = new JButton("Connexion");
     private JButton signupButton = new JButton("Inscription");
-    private JButton logoutButton = new JButton("Déconnexion"); // Ajout du bouton de déconnexion
+    private JButton logoutButton = new JButton("Déconnexion");
+	private JButton boutonAdmin = new JButton("Admin");
     private Container contenu;
+    public static int idUtilisateurConnecte;
     public static boolean utilisateurConnecte;
     public static boolean estAdmin; 
 	private JLabel nomField;
 	private JLabel prenomField;
 	private JLabel passwordField;
 	private JLabel emailField;
-	private JButton boutonAdmin = new JButton("Admin"); // Ajout du boutton admin
+	
     public MainWindow() {
         super();
 
@@ -72,6 +75,13 @@ public class MainWindow extends JFrame implements ActionListener {
         rightBoxGrid.setConstraints(signupButton, rightBoxConst);
         rightBoxConst.gridy = 2;
         rightBoxGrid.setConstraints(logoutButton, rightBoxConst);
+        rightBoxConst.gridy = 3;
+        rightBoxGrid.setConstraints(boutonAdmin, rightBoxConst);
+        
+        this.boxLeftJeu.setLayout(new GridLayout(0, 1));
+        this.boxLeft.setViewportView(boxLeftJeu);
+        listeJeux();
+        
         this.loginButton.addActionListener(this);
         this.connectionBox.add(loginButton);
         this.signupButton.addActionListener(this);
@@ -117,24 +127,97 @@ public class MainWindow extends JFrame implements ActionListener {
         }
         if (e.getSource() == logoutButton) { 
             utilisateurConnecte = false;
+            estAdmin = false;
             this.setVisible(false);
             this.dispose();
             MainWindow mw = new MainWindow();
             mw.setVisible(true);
         }
-    }
-
-
-    private void hideSignupButton() {
-        signupButton.setVisible(!utilisateurConnecte);
-        logoutButton.setVisible(utilisateurConnecte); // Rendre visible le bouton de déconnexion lorsque l'utilisateur est connecté
-    }
-
-		{
-            logoutButton.setVisible(false);
+        
+        if(e.getSource() == boutonAdmin) {
+        	Admin admin = new Admin(idUtilisateurConnecte);
+        	admin.setVisible(true);
         }
-}
-		 
+    }
     
+    private void listeJeux() {
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "")) {
+            String query = "SELECT * FROM jeu";
+            PreparedStatement statement = connection.prepareStatement(query);
+            ResultSet resultSet = statement.executeQuery();
 
+            while (resultSet.next()) {
+                JPanel jeu = new JPanel();
+                jeu.setLayout(new GridBagLayout());
+                jeu.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+                jeu.setPreferredSize(new Dimension(300, 120));
 
+                JLabel nomJeu = new JLabel(resultSet.getString("nomJeu"));
+                nomJeu.setFont(new Font("Arial", Font.BOLD, 16));
+                GridBagConstraints titleConstraints = new GridBagConstraints();
+                titleConstraints.gridx = 0;
+                titleConstraints.gridy = 0;
+                titleConstraints.gridwidth = 2;
+                titleConstraints.anchor = GridBagConstraints.CENTER;
+                titleConstraints.insets = new Insets(5, 5, 5, 5);
+                jeu.add(nomJeu, titleConstraints);
+                
+                Font desc = new Font("SansSerif", Font.PLAIN, 12);
+                JLabel etat = new JLabel("État: " + etatJeu(resultSet.getInt("idJeu")));
+                etat.setFont(desc);
+                JLabel nbJoueurs = new JLabel("Nombre de joueurs: " + resultSet.getString("nbJoueurs"));
+                nbJoueurs.setFont(desc);
+                JLabel ageMin = new JLabel("Age Minimum: " + resultSet.getString("ageMin"));
+                ageMin.setFont(desc);
+
+                GridBagConstraints labelConstraints = new GridBagConstraints();
+                labelConstraints.gridx = 0;
+                labelConstraints.gridy = 1;
+                labelConstraints.anchor = GridBagConstraints.WEST;
+                labelConstraints.insets = new Insets(5, 5, 5, 5);
+                jeu.add(etat, labelConstraints);
+
+                labelConstraints.gridy = 2;
+                jeu.add(nbJoueurs, labelConstraints);
+
+                labelConstraints.gridy = 3;
+                jeu.add(ageMin, labelConstraints);
+
+                // Button on the bottom right
+                JButton infoButton = new JButton("Consulter");
+                GridBagConstraints buttonConstraints = new GridBagConstraints();
+                buttonConstraints.gridx = 1; // Align to the second column
+                buttonConstraints.gridy = 3; // Align to the third row
+                buttonConstraints.anchor = GridBagConstraints.EAST;
+                buttonConstraints.insets = new Insets(5, 5, 5, 5);
+                jeu.add(infoButton, buttonConstraints);
+
+                // Add the constructed jeu panel to the boxLeftJeu panel
+                boxLeftJeu.add(jeu);
+
+                // Refresh the layout of the boxLeftJeu panel
+                boxLeftJeu.revalidate();
+                boxLeftJeu.repaint();
+            }
+        } catch (SQLException ex) {
+            System.out.println("ERREUR lors de la connexion à la base de données : " + ex.getMessage());
+        }
+    }
+    
+    private String etatJeu(int id) {
+    	try {
+	    	Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "");
+	    	String queryEtat = "SELECT Etat FROM etatjeu e JOIN jeu j ON j.conditionJeu = e.idEtat WHERE j.idJeu = ?";
+	        PreparedStatement statementEtat = connection.prepareStatement(queryEtat);
+	        statementEtat.setInt(1, id);
+	        ResultSet resultSetEtat = statementEtat.executeQuery();
+	        if (resultSetEtat.next()) {
+	        	return resultSetEtat.getString("Etat");
+	        }
+    	}
+    	catch (SQLException ex) {
+    		System.out.println("ERREUR lors de la connexion à la base de données : " + ex.getMessage());
+    	}
+    	return "Etat non-disponible";
+    }
+}
