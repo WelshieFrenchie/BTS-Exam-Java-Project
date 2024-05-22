@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Hôte:                         127.0.0.1
--- Version du serveur:           8.0.30 - MySQL Community Server - GPL
--- SE du serveur:                Win64
+-- Host:                         127.0.0.1
+-- Server version:               8.0.30 - MySQL Community Server - GPL
+-- Server OS:                    Win64
 -- HeidiSQL Version:             12.1.0.6537
 -- --------------------------------------------------------
 
@@ -15,11 +15,11 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
--- Listage de la structure de la base pour ludojava
+-- Dumping database structure for ludojava
 CREATE DATABASE IF NOT EXISTS `ludojava` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `ludojava`;
 
--- Listage de la structure de table ludojava. admin
+-- Dumping structure for table ludojava.admin
 CREATE TABLE IF NOT EXISTS `admin` (
   `idPers` int NOT NULL,
   `estAutorisé` int NOT NULL,
@@ -29,44 +29,28 @@ CREATE TABLE IF NOT EXISTS `admin` (
   CONSTRAINT `FK_admin_personne` FOREIGN KEY (`idPers`) REFERENCES `personne` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.admin : ~0 rows (environ)
+-- Dumping data for table ludojava.admin: ~3 rows (approximately)
 DELETE FROM `admin`;
 INSERT INTO `admin` (`idPers`, `estAutorisé`) VALUES
 	(1, 1),
 	(1, 2),
 	(1, 3);
 
--- Listage de la structure de table ludojava. autorisations
+-- Dumping structure for table ludojava.autorisations
 CREATE TABLE IF NOT EXISTS `autorisations` (
   `idAuto` int NOT NULL AUTO_INCREMENT,
   `nomAuto` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`idAuto`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.autorisations : ~3 rows (environ)
+-- Dumping data for table ludojava.autorisations: ~3 rows (approximately)
 DELETE FROM `autorisations`;
 INSERT INTO `autorisations` (`idAuto`, `nomAuto`) VALUES
 	(1, 'Ajout'),
 	(2, 'Modification'),
 	(3, 'Suppression');
 
--- Listage de la structure de table ludojava. commentaires
-CREATE TABLE IF NOT EXISTS `commentaires` (
-  `idUser` int NOT NULL,
-  `idJeu` int NOT NULL,
-  `dateCom` datetime NOT NULL,
-  `scoreCom` int NOT NULL,
-  `descCom` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  PRIMARY KEY (`idUser`,`idJeu`),
-  KEY `FK_commentaires_jeu` (`idJeu`),
-  CONSTRAINT `FK_commentaires_jeu` FOREIGN KEY (`idJeu`) REFERENCES `jeu` (`idJeu`),
-  CONSTRAINT `FK_commentaires_personne` FOREIGN KEY (`idUser`) REFERENCES `personne` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Listage des données de la table ludojava.commentaires : ~0 rows (environ)
-DELETE FROM `commentaires`;
-
--- Listage de la structure de table ludojava. estemprunte
+-- Dumping structure for table ludojava.estemprunte
 CREATE TABLE IF NOT EXISTS `estemprunte` (
   `PretUser` int NOT NULL,
   `PretJeu` int NOT NULL,
@@ -76,10 +60,12 @@ CREATE TABLE IF NOT EXISTS `estemprunte` (
   CONSTRAINT `FK__personne` FOREIGN KEY (`PretUser`) REFERENCES `personne` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.estemprunte : ~0 rows (environ)
+-- Dumping data for table ludojava.estemprunte: ~1 rows (approximately)
 DELETE FROM `estemprunte`;
+INSERT INTO `estemprunte` (`PretUser`, `PretJeu`) VALUES
+	(1, 1);
 
--- Listage de la structure de table ludojava. esttypo
+-- Dumping structure for table ludojava.esttypo
 CREATE TABLE IF NOT EXISTS `esttypo` (
   `typojeu` int NOT NULL,
   `genre` int NOT NULL,
@@ -89,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `esttypo` (
   CONSTRAINT `FK_esttypo_typologie` FOREIGN KEY (`genre`) REFERENCES `typologie` (`idGenre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.esttypo : ~8 rows (environ)
+-- Dumping data for table ludojava.esttypo: ~8 rows (approximately)
 DELETE FROM `esttypo`;
 INSERT INTO `esttypo` (`typojeu`, `genre`) VALUES
 	(2, 1),
@@ -101,14 +87,14 @@ INSERT INTO `esttypo` (`typojeu`, `genre`) VALUES
 	(6, 2),
 	(7, 2);
 
--- Listage de la structure de table ludojava. etatjeu
+-- Dumping structure for table ludojava.etatjeu
 CREATE TABLE IF NOT EXISTS `etatjeu` (
   `idEtat` int NOT NULL AUTO_INCREMENT,
   `Etat` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`idEtat`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.etatjeu : ~9 rows (environ)
+-- Dumping data for table ludojava.etatjeu: ~10 rows (approximately)
 DELETE FROM `etatjeu`;
 INSERT INTO `etatjeu` (`idEtat`, `Etat`) VALUES
 	(1, 'Neuf'),
@@ -122,7 +108,7 @@ INSERT INTO `etatjeu` (`idEtat`, `Etat`) VALUES
 	(9, 'Très mauvais'),
 	(10, 'Inutilisable');
 
--- Listage de la structure de table ludojava. jeu
+-- Dumping structure for table ludojava.jeu
 CREATE TABLE IF NOT EXISTS `jeu` (
   `idJeu` int NOT NULL AUTO_INCREMENT,
   `nomJeu` varchar(50) NOT NULL DEFAULT '',
@@ -137,7 +123,7 @@ CREATE TABLE IF NOT EXISTS `jeu` (
   CONSTRAINT `FK_jeu_etatjeu` FOREIGN KEY (`conditionJeu`) REFERENCES `etatjeu` (`idEtat`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.jeu : ~7 rows (environ)
+-- Dumping data for table ludojava.jeu: ~7 rows (approximately)
 DELETE FROM `jeu`;
 INSERT INTO `jeu` (`idJeu`, `nomJeu`, `descJeu`, `dispojeu`, `conditionJeu`, `nbJoueurs`, `ageMin`, `duréeJeu`) VALUES
 	(1, 'Monopoly', 'Achetez, vendez et négociez pour gagner la partie. Attention à la faillite, à vous de bien choisir les rues pour ruiner vos adversaires et être le dernier sur le plateau de jeu ! Monopoly, le plus célèbre des jeux de société!', 0, 1, '2-8', 8, '1h'),
@@ -148,7 +134,7 @@ INSERT INTO `jeu` (`idJeu`, `nomJeu`, `descJeu`, `dispojeu`, `conditionJeu`, `nb
 	(6, 'Risk', 'Menez vos régiments à la victoire. Prenez des décisions pour conquérir le monde. Le monde appartient aux audacieux mais l\'êtes-vous assez pour gagner ? ', 0, 2, '2-5', 10, '1h'),
 	(7, 'Cluedo', 'Samuel Lenoir, milliardaire très puissant, est assassiné ! Seuls les 6 invités se trouvaient dans la maison au moment du drame… C’est maintenant à vous de résoudre l’énigme ! Elaborez vos hypothèses en posant des questions à vos adversaires. Qui l’a tué ? Dans quelle pièce ? Et avec quelle arme ? Vous avez trouvez ?', 0, 3, '2-6', 8, '45m');
 
--- Listage de la structure de table ludojava. personne
+-- Dumping structure for table ludojava.personne
 CREATE TABLE IF NOT EXISTS `personne` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nom` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -156,27 +142,28 @@ CREATE TABLE IF NOT EXISTS `personne` (
   `mail` varchar(70) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `pwd` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.personne : ~0 rows (environ)
+-- Dumping data for table ludojava.personne: ~2 rows (approximately)
 DELETE FROM `personne`;
 INSERT INTO `personne` (`id`, `nom`, `prenom`, `mail`, `pwd`) VALUES
-	(1, NULL, NULL, 'admin@admin.fr', 'admin');
+	(1, NULL, NULL, 'admin@admin.fr', 'admin'),
+	(2, 'test', 'test', 'test@test.fr', 'test');
 
--- Listage de la structure de table ludojava. typologie
+-- Dumping structure for table ludojava.typologie
 CREATE TABLE IF NOT EXISTS `typologie` (
   `idGenre` int NOT NULL AUTO_INCREMENT,
   `nomGenre` varchar(30) NOT NULL,
   PRIMARY KEY (`idGenre`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.typologie : ~0 rows (environ)
+-- Dumping data for table ludojava.typologie: ~2 rows (approximately)
 DELETE FROM `typologie`;
 INSERT INTO `typologie` (`idGenre`, `nomGenre`) VALUES
 	(1, 'Jeu de Cartes'),
 	(2, 'Jeu de Plateau');
 
--- Listage de la structure de table ludojava. user
+-- Dumping structure for table ludojava.user
 CREATE TABLE IF NOT EXISTS `user` (
   `user` int NOT NULL,
   `adresseUser` int NOT NULL,
@@ -184,19 +171,10 @@ CREATE TABLE IF NOT EXISTS `user` (
   CONSTRAINT `FK__user` FOREIGN KEY (`user`) REFERENCES `personne` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table ludojava.user : ~0 rows (environ)
+-- Dumping data for table ludojava.user: ~0 rows (approximately)
 DELETE FROM `user`;
 
--- Listage de la structure de déclencheur ludojava. commentaires_date
-SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-DELIMITER //
-CREATE TRIGGER `commentaires_date` BEFORE INSERT ON `commentaires` FOR EACH ROW BEGIN
-   SET NEW.dateCom = NOW();
-END//
-DELIMITER ;
-SET SQL_MODE=@OLDTMP_SQL_MODE;
-
--- Listage de la structure de déclencheur ludojava. estemprunte_before_insert
+-- Dumping structure for trigger ludojava.estemprunte_before_insert
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
 CREATE TRIGGER `estemprunte_before_insert` BEFORE INSERT ON `estemprunte` FOR EACH ROW BEGIN
@@ -214,7 +192,7 @@ END//
 DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;
 
--- Listage de la structure de déclencheur ludojava. jeu_inutilisable
+-- Dumping structure for trigger ludojava.jeu_inutilisable
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
 CREATE TRIGGER `jeu_inutilisable` BEFORE UPDATE ON `jeu` FOR EACH ROW BEGIN

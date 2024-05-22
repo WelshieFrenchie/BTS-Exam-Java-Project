@@ -8,7 +8,8 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 
 public class Affichage extends JDialog implements ActionListener {
-
+	
+	private MainWindow mainwindow;
     private Container contenu;
     private JLabel nomLabel = new JLabel("Nom du jeu :");
     private JLabel descriptionLabel = new JLabel("Description :");
@@ -33,7 +34,8 @@ public class Affichage extends JDialog implements ActionListener {
     private static final String PASSWORD = "";
     private int Idjeu;
 
-    public Affichage(int Idjeu) {
+    public Affichage(MainWindow mw, int Idjeu) {
+    	this.mainwindow = mw;
         this.Idjeu = Idjeu;
         this.setTitle("Détails du jeu");
         this.setBounds(800, 250, 400, 400);
@@ -123,6 +125,10 @@ public class Affichage extends JDialog implements ActionListener {
                                 try (PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
                                     updateStatement.setInt(1, Idjeu);
                                     updateStatement.executeUpdate();
+                                    this.dispose();
+                                    mainwindow.dispose();
+                                    MainWindow mw = new MainWindow();
+                                    mw.setVisible(true);
                                 }
                             }
                         } else {
