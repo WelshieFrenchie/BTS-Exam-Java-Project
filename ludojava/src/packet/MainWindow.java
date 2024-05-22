@@ -17,6 +17,7 @@ public class MainWindow extends JFrame implements ActionListener {
     private JLabel boxLeftLabel = new JLabel("Liste de jeux");
     private JPanel boxLeftName = new JPanel();
     private JScrollPane boxMiddle = new JScrollPane();
+    private JPanel boxMiddleJeu = new JPanel();
     private JPanel boxRight = new JPanel();
     private JPanel connectionBox = new JPanel();
     private JButton loginButton = new JButton("Connexion");
@@ -73,7 +74,10 @@ public class MainWindow extends JFrame implements ActionListener {
         
         this.boxLeftJeu.setLayout(new GridLayout(0, 1));
         this.boxLeft.setViewportView(boxLeftJeu);
+        this.boxMiddleJeu.setLayout(new GridLayout(4, 1));
+        this.boxMiddle.setViewportView(boxMiddleJeu);
         listeJeux();
+        listeJeuxEmpruntés();
         
         this.loginButton.addActionListener(this);
         this.connectionBox.add(loginButton);
@@ -124,7 +128,7 @@ public class MainWindow extends JFrame implements ActionListener {
         }
         
         if (e.getSource() == boutonAdmin) {
-            admin admin = new admin(idUtilisateurConnecte);
+            Admin admin = new Admin(idUtilisateurConnecte);
             admin.setVisible(true);
         }
         
@@ -195,6 +199,71 @@ public class MainWindow extends JFrame implements ActionListener {
                 boxLeftJeu.revalidate();
                 boxLeftJeu.repaint();
             }
+        } catch (SQLException ex) {
+            System.out.println("ERREUR lors de la connexion à la base de données : " + ex.getMessage());
+        }
+    }
+    
+    private void listeJeuxEmpruntés() {
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "")) {
+        	if (utilisateurConnecte) {
+	            String query = "SELECT * FROM jeu WHERE idJeu = (SELECT PretJeu FROM estemprunte WHERE PretUser = ?)";
+	            PreparedStatement statement = connection.prepareStatement(query);
+	            statement.setInt(1, idUtilisateurConnecte);
+	            ResultSet resultSet = statement.executeQuery();
+	            
+	            //Création d'un JPanel pour chaque jeu trouvé
+	            while (resultSet.next()) {
+	                JPanel jeuprêté = new JPanel();
+	                jeuprêté.setLayout(new GridBagLayout());
+	                jeuprêté.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
+	                jeuprêté.setPreferredSize(new Dimension(300, 120));
+	
+	                JLabel nomJeu = new JLabel(resultSet.getString("nomJeu"));
+	                nomJeu.setFont(new Font("Arial", Font.BOLD, 16));
+	                GridBagConstraints titleConstraints = new GridBagConstraints();
+	                titleConstraints.gridx = 0;
+	                titleConstraints.gridy = 0;
+	                titleConstraints.gridwidth = 2;
+	                titleConstraints.anchor = GridBagConstraints.CENTER;
+	                titleConstraints.insets = new Insets(5, 5, 5, 5);
+	                jeuprêté.add(nomJeu, titleConstraints);
+	                
+	                Font desc = new Font("SansSerif", Font.PLAIN, 12);
+	                JLabel etat = new JLabel("État: " + etatJeu(resultSet.getInt("idJeu")));
+	                etat.setFont(desc);
+	                JLabel nbJoueurs = new JLabel("Nombre de joueurs: " + resultSet.getString("nbJoueurs"));
+	                nbJoueurs.setFont(desc);
+	                JLabel ageMin = new JLabel("Age Minimum: " + resultSet.getString("ageMin"));
+	                ageMin.setFont(desc);
+	
+	                GridBagConstraints labelConstraints = new GridBagConstraints();
+	                labelConstraints.gridx = 0;
+	                labelConstraints.gridy = 1;
+	                labelConstraints.anchor = GridBagConstraints.WEST;
+	                labelConstraints.insets = new Insets(5, 5, 5, 5);
+	                jeuprêté.add(etat, labelConstraints);
+	
+	                labelConstraints.gridy = 2;
+	                jeuprêté.add(nbJoueurs, labelConstraints);
+	
+	                labelConstraints.gridy = 3;
+	                jeuprêté.add(ageMin, labelConstraints);
+	
+	                JButton infoButton = new JButton("Consulter");
+	                GridBagConstraints buttonConstraints = new GridBagConstraints();
+	                buttonConstraints.gridx = 1;
+	                buttonConstraints.gridy = 3;
+	                buttonConstraints.anchor = GridBagConstraints.EAST;
+	                buttonConstraints.insets = new Insets(5, 5, 5, 5);
+	                jeuprêté.add(infoButton, buttonConstraints);
+	
+	                boxMiddleJeu.add(jeuprêté);
+	
+	                boxMiddleJeu.revalidate();
+	                boxMiddleJeu.repaint();
+	            }
+        	}
         } catch (SQLException ex) {
             System.out.println("ERREUR lors de la connexion à la base de données : " + ex.getMessage());
         }
