@@ -21,7 +21,7 @@ public class Program {
 		
 		MainWindow mw = new MainWindow();
 		mw.setVisible(true);
-		MainWindow.utilisateurConnecte = false;
-		MainWindow.estAdmin = false;
+		MainWindow.setUtilisateurConnecte(false);
+		MainWindow.setEstAdmin(false);
 	}
 }

@@ -6,7 +6,7 @@ import java.sql.*;
 import javax.swing.*;
 
 public class MainWindow extends JFrame implements ActionListener {
-	
+
     private JScrollPane boxLeft = new JScrollPane();
     private JPanel boxLeftJeu = new JPanel();
     private JLabel boxLeftLabel = new JLabel("Liste de jeux");
@@ -20,13 +20,37 @@ public class MainWindow extends JFrame implements ActionListener {
     private JButton logoutButton = new JButton("Déconnexion");
     private JButton boutonAdmin = new JButton("Admin");
     private Container contenu;
-    public static int idUtilisateurConnecte;
-    public static boolean utilisateurConnecte;
-    public static boolean estAdmin;
-    
-    public MainWindow() {
+    private static int idUtilisateurConnecte;
+    private static boolean utilisateurConnecte;
+    private static boolean estAdmin;
+
+    public static int getIdUtilisateurConnecte() {
+		return idUtilisateurConnecte;
+	}
+
+	public static void setIdUtilisateurConnecte(int idUtilisateurConnecte) {
+		MainWindow.idUtilisateurConnecte = idUtilisateurConnecte;
+	}
+
+	public static boolean isUtilisateurConnecte() {
+		return utilisateurConnecte;
+	}
+
+	public static void setUtilisateurConnecte(boolean utilisateurConnecte) {
+		MainWindow.utilisateurConnecte = utilisateurConnecte;
+	}
+
+	public static boolean isEstAdmin() {
+		return estAdmin;
+	}
+
+	public static void setEstAdmin(boolean estAdmin) {
+		MainWindow.estAdmin = estAdmin;
+	}
+
+	public MainWindow() {
         super();
-        
+
         this.setTitle("LudoFun");
         this.setBounds(500, 200, 900, 600);
         this.setResizable(false);
@@ -66,24 +90,24 @@ public class MainWindow extends JFrame implements ActionListener {
         rightBoxGrid.setConstraints(logoutButton, rightBoxConst);
         rightBoxConst.gridy = 3;
         rightBoxGrid.setConstraints(boutonAdmin, rightBoxConst);
-        
+
         this.boxLeftJeu.setLayout(new GridLayout(0, 1));
         this.boxLeft.setViewportView(boxLeftJeu);
         this.boxMiddleJeu.setLayout(new GridLayout(4, 1));
         this.boxMiddle.setViewportView(boxMiddleJeu);
         listeJeux();
         listeJeuxEmpruntés();
-        
+
         this.loginButton.addActionListener(this);
         this.connectionBox.add(loginButton);
         this.signupButton.addActionListener(this);
         this.connectionBox.add(signupButton);
-        this.logoutButton.addActionListener(this); 
+        this.logoutButton.addActionListener(this);
         this.connectionBox.add(logoutButton);
-        this.boutonAdmin.addActionListener(this); 
+        this.boutonAdmin.addActionListener(this);
         this.connectionBox.add(boutonAdmin);
-        
-        if (utilisateurConnecte == true) {
+
+        if (utilisateurConnecte) {
             this.loginButton.setVisible(false);
             this.signupButton.setVisible(false);
             this.logoutButton.setVisible(true);
@@ -92,14 +116,12 @@ public class MainWindow extends JFrame implements ActionListener {
             this.signupButton.setVisible(true);
             this.logoutButton.setVisible(false);
         }
-        if (estAdmin == true) {
+        if (estAdmin) {
             this.boutonAdmin.setVisible(true);
         } else {
             this.boutonAdmin.setVisible(false);
         }
-        
     }
-    
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
@@ -113,7 +135,7 @@ public class MainWindow extends JFrame implements ActionListener {
             lw.setVisible(true);
             this.setVisible(false);
             this.dispose();
-        } 
+        }
         if (e.getSource() == logoutButton) {
             utilisateurConnecte = false;
             estAdmin = false;
@@ -121,26 +143,14 @@ public class MainWindow extends JFrame implements ActionListener {
             this.dispose();
             MainWindow mw = new MainWindow();
             mw.setVisible(true);
-        } 
+        }
         if (e.getSource() == boutonAdmin) {
             Admin admin = new Admin(idUtilisateurConnecte);
+        	admin.setIdUtilisateur(getIdUtilisateurConnecte());
             admin.setVisible(true);
-        }
-        
-        String actionCommand = e.getActionCommand();
-        if (actionCommand != null) {
-            try {
-                int idJeu = Integer.parseInt(actionCommand);
-                
-                Affichage affichage = new Affichage(this, idJeu);
-                affichage.setVisible(true);
-            } catch (Exception ex) {
-                System.out.println("Erreur: " + ex);
-            }
         }
     }
 
-    
     private void listeJeux() {
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "")) {
             String query = "SELECT * FROM jeu";
@@ -161,7 +171,7 @@ public class MainWindow extends JFrame implements ActionListener {
                 titleConstraints.anchor = GridBagConstraints.CENTER;
                 titleConstraints.insets = new Insets(5, 5, 5, 5);
                 jeu.add(nomJeu, titleConstraints);
-                
+
                 Font desc = new Font("SansSerif", Font.PLAIN, 12);
                 JLabel etat = new JLabel("État: " + etatJeu(resultSet.getInt("idJeu")));
                 etat.setFont(desc);
@@ -184,8 +194,8 @@ public class MainWindow extends JFrame implements ActionListener {
                 jeu.add(ageMin, labelConstraints);
 
                 JButton infoButton = new JButton("Consulter");
-                infoButton.setActionCommand(String.valueOf(resultSet.getInt("idJeu"))); //Récupère la valeur de idJeu comme valeur à retourner pour l'affichage
-                infoButton.addActionListener(this);
+                infoButton.setActionCommand(String.valueOf(resultSet.getInt("idJeu")));
+                infoButton.addActionListener(new InfoButtonListener());
                 GridBagConstraints buttonConstraints = new GridBagConstraints();
                 buttonConstraints.gridx = 1;
                 buttonConstraints.gridy = 3;
@@ -201,7 +211,7 @@ public class MainWindow extends JFrame implements ActionListener {
             System.out.println("ERREUR lors de la connexion à la base de données : " + ex.getMessage());
         }
     }
-    
+
     private void listeJeuxEmpruntés() {
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "")) {
             if (utilisateurConnecte) {
@@ -209,8 +219,7 @@ public class MainWindow extends JFrame implements ActionListener {
                 PreparedStatement statement = connection.prepareStatement(query);
                 statement.setInt(1, idUtilisateurConnecte);
                 ResultSet resultSet = statement.executeQuery();
-                
-                // Création d'un JPanel pour chaque jeu trouvé
+
                 while (resultSet.next()) {
                     JPanel jeuprêté = new JPanel();
                     jeuprêté.setLayout(new GridBagLayout());
@@ -226,7 +235,7 @@ public class MainWindow extends JFrame implements ActionListener {
                     titleConstraints.anchor = GridBagConstraints.CENTER;
                     titleConstraints.insets = new Insets(5, 5, 5, 5);
                     jeuprêté.add(nomJeu, titleConstraints);
-                    
+
                     Font desc = new Font("SansSerif", Font.PLAIN, 12);
                     JLabel etat = new JLabel("État: " + etatJeu(resultSet.getInt("idJeu")));
                     etat.setFont(desc);
@@ -249,8 +258,8 @@ public class MainWindow extends JFrame implements ActionListener {
                     jeuprêté.add(ageMin, labelConstraints);
 
                     JButton rendreButton = new JButton("Rendre");
-                    rendreButton.setActionCommand(String.valueOf(resultSet.getInt("idJeu"))); 
-                    rendreButton.addActionListener(this);
+                    rendreButton.setActionCommand(String.valueOf(resultSet.getInt("idJeu")));
+                    rendreButton.addActionListener(new ReturnButtonListener());
                     GridBagConstraints buttonConstraints = new GridBagConstraints();
                     buttonConstraints.gridx = 1;
                     buttonConstraints.gridy = 3;
@@ -269,7 +278,6 @@ public class MainWindow extends JFrame implements ActionListener {
         }
     }
 
-    
     private String etatJeu(int id) {
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "")) {
             String queryEtat = "SELECT Etat FROM etatjeu e JOIN jeu j ON j.conditionJeu = e.idEtat WHERE j.idJeu = ?";
@@ -284,9 +292,47 @@ public class MainWindow extends JFrame implements ActionListener {
         }
         return "Etat non-disponible";
     }
-    
-    public void actualisation() {
-      	this.revalidate();
-    	this.repaint();
+
+    private class InfoButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String actionCommand = e.getActionCommand();
+            if (actionCommand != null) {
+                try {
+                    int idJeu = Integer.parseInt(actionCommand);
+                    Affichage affichage = new Affichage(MainWindow.this, idJeu);
+                    affichage.setVisible(true);
+                } catch (Exception ex) {
+                    System.out.println("Erreur: " + ex);
+                }
+            }
+        }
     }
+
+    private class ReturnButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String actionCommand = e.getActionCommand();
+            if (actionCommand != null) {
+            	try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "")) {
+            		int idJeu = Integer.parseInt(actionCommand);
+					String query = "UPDATE jeu SET dispojeu = 1 WHERE idJeu = ?";
+					PreparedStatement statement = connection.prepareStatement(query);
+					statement.setInt(1, idJeu);
+					statement.execute();
+                    String query2 = "DELETE FROM estemprunte WHERE PretJeu = ? AND PretUser = ?";
+                    PreparedStatement statement2 = connection.prepareStatement(query2);
+                    statement2.setInt(1, idJeu);
+                    statement2.setInt(2, idUtilisateurConnecte);
+                    statement2.execute();
+                    MainWindow.this.dispose();
+                    MainWindow newMainWindow = new MainWindow();
+                    newMainWindow.setVisible(true);
+                    
+                } catch (Exception ex) {
+                    System.out.println("Erreur: " + ex);
+                }
+            }
+        }
+    }
+    
+    
 }

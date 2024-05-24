@@ -113,11 +113,11 @@ public class RegisterWindow extends JDialog implements ActionListener {
 	                    ResultSet resultSet2 = statement2.executeQuery();
 	                    
 	                    if (resultSet2.next()) {
-	                        MainWindow.estAdmin = true; 
+	                        MainWindow.setEstAdmin(true); 
 	                    } else {
-	                        MainWindow.estAdmin = false; 
+	                    	MainWindow.setEstAdmin(false); 
 	                    }
-	                    MainWindow.utilisateurConnecte = true;
+	                    MainWindow.setUtilisateurConnecte(true);
 	                    MainWindow mw = new MainWindow();
 	                    mw.setVisible(true);
 	                }

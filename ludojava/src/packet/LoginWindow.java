@@ -73,21 +73,21 @@ public class LoginWindow extends JDialog implements ActionListener {
                 ResultSet resultSet = statement.executeQuery();
                 
                 if (resultSet.next()) {
-                	MainWindow.idUtilisateurConnecte = resultSet.getInt("id");
+                	MainWindow.setIdUtilisateurConnecte(resultSet.getInt("id"));
                 	String query2 = "SELECT * From admin join personne on admin.idpers = personne.id where personne.mail = ?";
                     PreparedStatement statement2 = connection.prepareStatement(query2);
                     statement2.setString(1, email);
                     ResultSet resultSet2 = statement.executeQuery();
                     
                     if (resultSet2.next()) {
-                        MainWindow.estAdmin = true; 
+                        MainWindow.setEstAdmin(true); 
                     } else {
-                        MainWindow.estAdmin = false; 
+                    	MainWindow.setEstAdmin(false); 
                     }
                     // Fermer la fenêtre de connexion une fois que l'utilisateur est connecté
                     dispose(); // Cette ligne ferme la fenêtre de dialogue courante
                     
-                    MainWindow.utilisateurConnecte = true;
+                    MainWindow.setUtilisateurConnecte(true);
                     MainWindow mw = new MainWindow();
                     mw.setVisible(true); 
                     
