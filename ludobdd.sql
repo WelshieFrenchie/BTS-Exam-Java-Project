@@ -29,11 +29,12 @@ CREATE TABLE IF NOT EXISTS `admin` (
   CONSTRAINT `FK_admin_personne` FOREIGN KEY (`idPers`) REFERENCES `personne` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table ludojava.admin: ~3 rows (approximately)
+-- Dumping data for table ludojava.admin: ~4 rows (approximately)
 DELETE FROM `admin`;
 INSERT INTO `admin` (`idPers`, `estAutorisé`) VALUES
 	(1, 1),
 	(1, 2),
+	(2, 2),
 	(1, 3);
 
 -- Dumping structure for table ludojava.autorisations
@@ -60,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `estemprunte` (
   CONSTRAINT `FK__personne` FOREIGN KEY (`PretUser`) REFERENCES `personne` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table ludojava.estemprunte: ~1 rows (approximately)
+-- Dumping data for table ludojava.estemprunte: ~0 rows (approximately)
 DELETE FROM `estemprunte`;
 
 -- Dumping structure for table ludojava.etatjeu
@@ -97,13 +98,13 @@ CREATE TABLE IF NOT EXISTS `jeu` (
   PRIMARY KEY (`idJeu`),
   KEY `FK_jeu_etatjeu` (`conditionJeu`),
   CONSTRAINT `FK_jeu_etatjeu` FOREIGN KEY (`conditionJeu`) REFERENCES `etatjeu` (`idEtat`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table ludojava.jeu: ~7 rows (approximately)
 DELETE FROM `jeu`;
 INSERT INTO `jeu` (`idJeu`, `nomJeu`, `descJeu`, `dispojeu`, `conditionJeu`, `nbJoueurs`, `ageMin`, `duréeJeu`) VALUES
 	(1, 'Monopoly', 'Achetez, vendez et négociez pour gagner la partie. Attention à la faillite, à vous de bien choisir les rues pour ruiner vos adversaires et être le dernier sur le plateau de jeu ! Monopoly, le plus célèbre des jeux de société!', 1, 1, '2-8', 8, '1h'),
-	(2, 'Uno', 'Le célèbre jeu de défausse pour jouer en famille. Chaque joueur reçoit 7 cartes et on en place une face visible au centre de la table. Chaque joueur à son tour se défausse d\'une carte de sa main qui a la même valeur, la même couleur ou le même symbole que la carte visible sur la table. S\'il ne peut pas joueur il pioche. Quand un joueur n\'a plus de cartes la partie s\'arrête. Les cartes encore en main font marquer des points négatifs. Les cartes spéciales viennent pimenter le jeu.', 0, 2, '2-10', 7, '30m'),
+	(2, 'Uno', 'Le célèbre jeu de défausse pour jouer en famille. Chaque joueur reçoit 7 cartes et on en place une face visible au centre de la table. Chaque joueur à son tour se défausse d\'une carte de sa main qui a la même valeur, la même couleur ou le même symbole que la carte visible sur la table. S\'il ne peut pas joueur il pioche. Quand un joueur n\'a plus de cartes la partie s\'arrête. Les cartes encore en main font marquer des points négatifs. Les cartes spéciales viennent pimenter le jeu.', 1, 2, '2-10', 7, '30m'),
 	(3, 'Dobble', 'Dobble est un jeu d’observation et de rapidité pour toute la famille. Le but ? Il existe un seul et unique symbole commun entre chacune des cartes. Sois le premier à le répérer et à le nommer pour remporter la carte.', 0, 3, '2-8', 6, '5 à 15m'),
 	(4, 'Trivial Pursuit', 'Jeu très connu depuis plusieurs générations, le Trivial Pursuit se hisse au rang des jeux de société les plus populaires ! Le principe de ce jeu de plateau est simple : il suffit de répondre correctement à 12 questions de culture générale pour remporter la partie. Les questions répondent à plusieurs thèmes (célébrité, divertissement, culture, géographie, histoire, cinéma) chacun modélisé par une couleur. Chaque joueur doit remplir son camembert au fur et à mesure qu’il répond aux bonnes questions, et doit avoir à la fin 1 triangle de chaque couleur dans son camembert.', 0, 8, '2-6', 8, '1h'),
 	(5, 'Mille Bornes', 'L’indémodable Mille Bornes, la version phare de la gamme, qui se joue de génération en génération avec la même passion.', 0, 3, '2-8', 6, '30m'),

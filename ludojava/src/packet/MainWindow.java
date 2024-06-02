@@ -215,7 +215,7 @@ public class MainWindow extends JFrame implements ActionListener {
     private void listeJeuxEmpruntés() {
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "")) {
             if (utilisateurConnecte) {
-                String query = "SELECT * FROM jeu WHERE idJeu = (SELECT PretJeu FROM estemprunte WHERE PretUser = ?)";
+                String query = "SELECT j.* FROM jeu j JOIN estemprunte e ON j.idJeu = e.PretJeu WHERE e.PretUser = ?";
                 PreparedStatement statement = connection.prepareStatement(query);
                 statement.setInt(1, idUtilisateurConnecte);
                 ResultSet resultSet = statement.executeQuery();

@@ -17,8 +17,8 @@ public class Affichage extends JDialog implements ActionListener {
     private JLabel disponibiliteLabel = new JLabel("Disponibilité :");
     private JLabel conditionLabel = new JLabel("Condition :");
     private JLabel joueursLabel = new JLabel("Nombre de joueurs :");
-    private JLabel ageLabel = new JLabel("Âge :");
-    private JLabel genreLabel = new JLabel("Genre :");
+    private JLabel ageLabel = new JLabel("Âge minimum :");
+    private JLabel dureeLabel = new JLabel("Durée de jeu :");
     
     private JLabel nomValueLabel = new JLabel();
     private JLabel descriptionValueLabel = new JLabel();
@@ -58,12 +58,12 @@ public class Affichage extends JDialog implements ActionListener {
         contenu.add(joueursValueLabel);
         contenu.add(ageLabel);
         contenu.add(ageValueLabel);
-        contenu.add(genreLabel);
+        contenu.add(dureeLabel);
         contenu.add(genreValueLabel);
 
         boutonEmprunt.addActionListener(this);
         contenu.add(boutonEmprunt);
-        contenu.add(new JLabel()); // Empty cell to keep the grid layout even
+        contenu.add(new JLabel());
 
         informationsJeu(Idjeu);
         
@@ -93,12 +93,12 @@ public class Affichage extends JDialog implements ActionListener {
         contenu.add(joueursValueLabel);
         contenu.add(ageLabel);
         contenu.add(ageValueLabel);
-        contenu.add(genreLabel);
+        contenu.add(dureeLabel);
         contenu.add(genreValueLabel);
 
         boutonEmprunt.addActionListener(this);
         contenu.add(boutonEmprunt);
-        contenu.add(new JLabel()); // Empty cell to keep the grid layout even
+        contenu.add(new JLabel());
 
         modificationsJeu(Idjeu);
         

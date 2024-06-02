@@ -14,9 +14,9 @@ import java.sql.*;
 	    private JPanel boxJeux = new JPanel();
 	    private Container contenu;
 	    private int idUtilisateur;
-		private int droitAjout;
-		private int droitModif;
-		private int droitSupp;
+		private boolean droitAjout = false;
+		private boolean droitModif = false;
+		private boolean droitSupp = false;
 
 		public void setIdUtilisateur(int idUtilisateur) {
 			this.idUtilisateur = idUtilisateur;
@@ -24,49 +24,65 @@ import java.sql.*;
 
 		// Méthode pour vérifier si l'utilisateur est administrateur
 	    private boolean estAdministrateur(int idUtilisateur) {
-	        // Connexion à la base de données
-	        String url = "jdbc:mysql://localhost:3306/ludojava";
-	        String login = "root";
-	        String password = "";
 	        String query = "SELECT * FROM admin WHERE idPers = ?";
-
-	        try (Connection connection = DriverManager.getConnection(url, login, password);
+	        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "");
 	            PreparedStatement statement = connection.prepareStatement(query)) {
 	            statement.setInt(1, idUtilisateur);
 	            ResultSet resultSet = statement.executeQuery();
+	            Autorisations(idUtilisateur);
 	            return resultSet.next(); // Renvoie true si l'utilisateur est trouvé dans la table admin, sinon false
 	        } catch (SQLException e) {
 	            e.printStackTrace();
 	            return false;
 	        }
 	    }
+	    
+	    public void Autorisations(int idUtilisateur) {
+	        String query = "SELECT estAutorisé FROM admin WHERE idPers = ?";
+	    	try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ludojava", "root", "");
+	            PreparedStatement statement = connection.prepareStatement(query)) {
+	            statement.setInt(1, idUtilisateur);
+	            ResultSet resultSet = statement.executeQuery();
+	            while (resultSet.next()) {
+	            	if (resultSet.getInt("estAutorisé") == 1) {
+	            		droitAjout = true;
+	            	}
+	            	if (resultSet.getInt("estAutorisé") == 2) {
+	            		droitModif = true;
+	            	}
+	            	if (resultSet.getInt("estAutorisé") == 3) {
+	            		droitSupp = true;
+	            	}
+	            }
+	    	}
+	    	catch (SQLException ex) {
+	            System.out.println("ERREUR lors de la connexion à la base de données : " + ex.getMessage());
+	        } 
+	    }
 
 	    public Admin(int idUtilisateurConnecte) {
-	        // Vérifier si l'utilisateur est administrateur
-	    	this.idUtilisateur = idUtilisateurConnecte;
+	    	setIdUtilisateur(idUtilisateurConnecte);
 	        if (!estAdministrateur(this.idUtilisateur)) {
 	            JOptionPane.showMessageDialog(this, "Vous n'avez pas les droits d'accès à cette interface.");
-	            dispose(); // Ferme la fenêtre d'administration si l'utilisateur n'est pas administrateur
 	            return;
 	        }
-	        // Configuration de la fenêtre d'administration
 	        setTitle("Interface d'administration");
 	        setSize(400, 300);
-	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	        setLocationRelativeTo(null); // Centrer la fenêtre sur l'écran
+	        setLocationRelativeTo(null);
 	        
 	        this.contenu = this.getContentPane();
 	        JPanel panel = new JPanel();
 	        JButton bouton = new JButton("Ajouter jeu");
 
-	        // Ajout d'action listeners aux boutons si besoin
 	        bouton.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
-	                // Action à effectuer lorsqu'on clique sur le bouton 1
-	                JOptionPane.showMessageDialog(Admin.this, "Fonctionnalité Ajouter Jeu exécutée.");
+	            	JeuForm form = new JeuForm();
+	            	form.setVisible(true);
 	            }
 	        });
-	        panel.add(bouton);
+	        if (droitAjout) {
+		        panel.add(bouton);
+	        }
 	        this.contenu.add(boxJeux);
 	        this.contenu.add(scrollJeux);
 	        this.scrollJeux.setBounds(20, 40, 360, 200);
@@ -74,7 +90,6 @@ import java.sql.*;
 	        this.scrollJeux.setViewportView(boxJeux);
 	        add(panel);
 	        listeJeux();
-	        // Rendre la fenêtre visible
 	        setVisible(true);
 	    }
 	    
@@ -120,15 +135,17 @@ import java.sql.*;
 	                labelConstraints.gridy = 3;
 	                jeu.add(ageMin, labelConstraints);
 
-	                JButton infoButton = new JButton("Consulter");
-	                infoButton.setActionCommand(String.valueOf(resultSet.getInt("idJeu")));
-	                infoButton.addActionListener(new InfoButtonListener());
+	                JButton modifButton = new JButton("Modifier");
+	                modifButton.setActionCommand(String.valueOf(resultSet.getInt("idJeu")));
+	                modifButton.addActionListener(new InfoButtonListener());
 	                GridBagConstraints buttonConstraints = new GridBagConstraints();
 	                buttonConstraints.gridx = 0;
 	                buttonConstraints.gridy = 4;
 	                buttonConstraints.anchor = GridBagConstraints.WEST;
 	                buttonConstraints.insets = new Insets(5, 5, 5, 5);
-	                jeu.add(infoButton, buttonConstraints);
+	                if (droitModif) {
+		                jeu.add(modifButton, buttonConstraints);
+	                }
 
 	                JButton supprimerButton = new JButton("Supprimer");
 	                supprimerButton.setActionCommand(String.valueOf(resultSet.getInt("idJeu")));
@@ -136,7 +153,9 @@ import java.sql.*;
 	                buttonConstraints.gridx = 1;
 	                buttonConstraints.gridy = 4;
 	                buttonConstraints.anchor = GridBagConstraints.EAST;
-	                jeu.add(supprimerButton, buttonConstraints);
+	                if (droitSupp) {
+		                jeu.add(supprimerButton, buttonConstraints);
+	                }
 
 	                boxJeux.add(jeu);
 	                boxJeux.revalidate();
@@ -152,9 +171,10 @@ import java.sql.*;
 	            String actionCommand = e.getActionCommand();
 	            if (actionCommand != null) {
 	                try {
-	                    int idJeu = Integer.parseInt(actionCommand.substring(5));
-	                    Affichage affichage = new Affichage(Admin.this, idJeu);
-	                    affichage.setVisible(true);
+	                    int idJeu = Integer.parseInt(actionCommand);
+	                    JeuForm jeuForm = new JeuForm(idJeu);
+	                    jeuForm.setVisible(true);
+	                    
 	                } catch (Exception ex) {
 	                    System.out.println("Erreur: " + ex);
 	                }
@@ -196,11 +216,6 @@ import java.sql.*;
 	            System.out.println("ERREUR lors de la connexion à la base de données : " + ex.getMessage());
 	        }
 	        return "Etat non-disponible";
-	    }
-
-	    public static void main(String[] args) {
-
-	        Admin a = new Admin(1);
 	    }
 	}
 
